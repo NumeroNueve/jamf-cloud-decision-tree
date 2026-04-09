@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Jamf Cloud Offerings — Decision Tree</title>
+<title>Jamf Cloud Offerings — AI Advisor</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -99,32 +99,12 @@
     line-height: 1.6;
   }
 
-  .tree-wrap {
+  .wrap {
     max-width: 680px;
     margin: 0 auto;
   }
 
-  .breadcrumb {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    align-items: center;
-    margin-bottom: 16px;
-    font-size: 11px;
-    font-family: 'Courier New', monospace;
-    color: var(--text-tertiary);
-    min-height: 18px;
-  }
-
-  .bc-item {
-    cursor: pointer;
-    color: var(--blue);
-    text-decoration: none;
-  }
-  .bc-item:hover { text-decoration: underline; }
-  .bc-sep { color: var(--border-strong); }
-
-  .q-card {
+  .input-card {
     background: var(--surface);
     border: 0.5px solid var(--border-strong);
     border-radius: var(--radius);
@@ -132,7 +112,7 @@
     margin-bottom: 12px;
   }
 
-  .q-label {
+  .input-label {
     font-family: 'Courier New', monospace;
     font-size: 10px;
     letter-spacing: .12em;
@@ -141,7 +121,7 @@
     margin-bottom: 12px;
   }
 
-  .q-text {
+  .input-prompt {
     font-size: 18px;
     font-weight: normal;
     color: var(--text);
@@ -149,7 +129,7 @@
     line-height: 1.5;
   }
 
-  .q-hint {
+  .input-hint {
     font-family: 'Helvetica Neue', Arial, sans-serif;
     font-size: 12px;
     color: var(--text-tertiary);
@@ -160,49 +140,70 @@
     border-left: 2px solid var(--border);
   }
 
-  .btn-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .q-btn {
-    padding: 12px 16px;
+  textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 14px 16px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
+    border: 0.5px solid var(--border-strong);
     background: var(--surface2);
     color: var(--text);
-    font-size: 13px;
+    font-size: 14px;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    cursor: pointer;
-    transition: background .15s, border-color .15s, transform .1s;
-    text-align: left;
-    line-height: 1.5;
+    line-height: 1.6;
+    resize: vertical;
+    margin-bottom: 14px;
+    transition: border-color .15s;
   }
-  .q-btn:hover {
-    background: var(--bg);
-    border-color: var(--border-strong);
-    transform: translateX(2px);
+  textarea:focus {
+    outline: none;
+    border-color: var(--blue);
   }
-  .q-btn:active { transform: scale(0.99); }
+  textarea::placeholder {
+    color: var(--text-tertiary);
+  }
 
-  .restart-btn {
+  .submit-btn {
     display: block;
     width: 100%;
-    padding: 10px;
+    padding: 12px 16px;
     border-radius: var(--radius-sm);
-    border: 0.5px solid var(--border);
-    background: transparent;
-    color: var(--text-tertiary);
-    font-size: 12px;
-    font-family: 'Courier New', monospace;
-    letter-spacing: .04em;
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 14px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
     cursor: pointer;
-    margin-top: 10px;
-    transition: background .15s, color .15s;
+    transition: background .15s, border-color .15s;
     text-align: center;
   }
-  .restart-btn:hover { background: var(--surface2); color: var(--text-secondary); }
+  .submit-btn:hover {
+    background: var(--bg);
+    border-color: var(--border-strong);
+  }
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 40px 20px;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--text-tertiary);
+  }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0%  { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
 
   .result-card {
     background: var(--surface);
@@ -252,7 +253,7 @@
     position: relative;
   }
   .result-features li::before {
-    content: "→";
+    content: "\2192";
     position: absolute;
     left: 0;
     color: var(--text-tertiary);
@@ -270,23 +271,26 @@
   }
   .result-price strong { color: var(--text); }
 
-  .ask-btn {
-    display: inline-block;
-    padding: 7px 12px;
+  .considerations {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding: 12px 14px;
+    background: var(--surface2);
     border-radius: var(--radius-sm);
     border: 0.5px solid var(--border);
-    background: var(--surface2);
-    color: var(--text-secondary);
-    font-size: 12px;
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    cursor: pointer;
-    margin-right: 6px;
-    margin-bottom: 6px;
-    transition: background .15s;
-    text-align: left;
-    line-height: 1.4;
+    margin-bottom: 14px;
   }
-  .ask-btn:hover { background: var(--bg); border-color: var(--border-strong); }
+  .considerations strong {
+    color: var(--text-tertiary);
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
 
   .warn-note {
     font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -300,251 +304,168 @@
     line-height: 1.6;
   }
 
-  .divider {
-    height: 0.5px;
-    background: var(--border);
-    margin: 16px 0;
+  .restart-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border);
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    letter-spacing: .04em;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background .15s, color .15s;
+    text-align: center;
+  }
+  .restart-btn:hover { background: var(--surface2); color: var(--text-secondary); }
+
+  .error-msg {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 13px;
+    color: var(--red-text);
+    background: var(--red-bg);
+    border: 0.5px solid var(--red);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+
+  .input-context {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 12px;
+    color: var(--text-tertiary);
+    background: var(--surface2);
+    border-radius: var(--radius-sm);
+    border: 0.5px solid var(--border);
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    line-height: 1.6;
+    font-style: italic;
   }
 </style>
 </head>
 <body>
 
 <div class="page-header">
-  <div class="eyebrow">Jamf · GTM Reference Tool</div>
-  <h1>Jamf Cloud Offerings<br>Decision Guide</h1>
-  <p>Answer a few questions to identify the right hosting environment for your customer.</p>
+  <div class="eyebrow">Jamf &middot; GTM Reference Tool</div>
+  <h1>Jamf Cloud Offerings<br>AI Advisor</h1>
+  <p>Describe your customer's situation and get a hosting recommendation powered by AI.</p>
 </div>
 
-<div class="tree-wrap" id="tree-wrap">
-  <div class="breadcrumb" id="breadcrumb"></div>
+<div class="wrap" id="wrap">
   <div id="content"></div>
 </div>
 
 <script>
-const OUTCOMES = {
+const OFFERINGS = {
   standard: {
     name: "Standard Cloud",
-    icon: "☁️",
+    icon: "\u2601\uFE0F",
     badgeBg: "var(--blue-bg)",
     badgeColor: "var(--blue-text)",
     price: "Regular SKU pricing (no hosting add-on)",
-    desc: "Jamf's core multi-tenant offering. Ideal for organizations without strict compliance or performance needs. Covers approximately 95% of customer requirements.",
-    features: [
-      "SOC 2 Type II + ISO 27001 certified",
-      "Regional hosting (US, EU, APAC)",
-      "Jamf-managed upgrades",
-      "Standard encryption, backups & disaster recovery",
-      "Supports CIS Benchmarks 1 & 2, CMMC, NIST 800-171"
-    ],
-    asks: ["What compliance certifications does Standard Cloud include?", "Which regions is Standard Cloud available in?"],
     warn: null
   },
   premium: {
     name: "Premium Cloud",
-    icon: "☁️⭐",
+    icon: "\u2601\uFE0F\u2B50",
     badgeBg: "var(--green-bg)",
     badgeColor: "var(--green-text)",
     price: "$20,000/year hosting cost",
-    desc: "Builds on Standard Cloud with added operational control, security customization, and enhanced performance. Not positioned as 'single tenant' — focus on control and performance.",
-    features: [
-      "Customer-controlled upgrade scheduling",
-      "IP safelisting",
-      "Third-party SSL certificate support",
-      "Secure port configuration",
-      "Jamf Log Stream for SIEM integration",
-      "Enhanced performance (more memory, additional nodes, autoscaling)",
-      "Supports CIS 1&2, CMMC, NIST 800-171"
-    ],
-    asks: ["What SIEM integrations does Premium Cloud support?", "How does upgrade scheduling work in Premium Cloud?"],
     warn: null
   },
   highcompliance: {
     name: "High Compliance Cloud",
-    icon: "☁️🔒",
+    icon: "\u2601\uFE0F\uD83D\uDD12",
     badgeBg: "var(--amber-bg)",
     badgeColor: "var(--amber-text)",
     price: "$40,000/year hosting cost",
-    desc: "Purpose-built for regulated industries and public sector. Dedicated hosting in a compliance-certified environment, not shared with standard Jamf Cloud infrastructure.",
-    features: [
-      "StateRAMP and NIST 800-53 alignment with available audit results",
-      "Dedicated, compliance-certified hosting environment",
-      "Additional access controls and network restrictions",
-      "Mandatory upgrade path (must stay on latest release)",
-      "Elevated monitoring and logging",
-      "Compliance Benchmarks & Blueprint support (coming Q2 2026)"
-    ],
-    asks: ["What is StateRAMP and does my org need it?", "What are the upgrade requirements for High Compliance Cloud?"],
-    warn: "Note: Some features depend on third-party providers (e.g. ABM, App Installers, Jamf Remote Assist). Customers are responsible for procuring and maintaining required third-party services."
+    warn: null
   },
   premiumplus: {
     name: "Premium Cloud Plus",
-    icon: "☁️⭐+",
+    icon: "\u2601\uFE0F\u2B50+",
     badgeBg: "var(--red-bg)",
     badgeColor: "var(--red-text)",
     price: "$50,000/year hosting cost",
-    desc: "Single-tenant, dedicated cloud environment hosted in AWS GovCloud. Targeted at enterprise and government-adjacent orgs with strict data residency, compliance, or performance needs.",
-    features: [
-      "AWS GovCloud hosted (US-only)",
-      "U.S. citizens only can access the environment",
-      "IP safelisting, third-party SSL, secure port config",
-      "Jamf Log Stream for SIEM integration",
-      "Supports FISMA, CJIS, PCI-DSS, DFARS, ITAR, DoD SRG L2/4/5 alignment"
-    ],
-    asks: ["What is the difference between Premium Cloud Plus and FedCloud?", "Is Jamf Pro FedRAMP authorized?"],
-    warn: "⚠️ Deprecation notice: Premium Cloud Plus will be discontinued in Q3–Q4 2026 and replaced by FedCloud (a FedRAMP-authorized offering). Do not sell to new customers — reach out to @Doug Cooper or @Erin Ogren before proposing this environment. Note: AWS GovCloud is FedRAMP-compliant infrastructure, but Jamf Pro itself is NOT FedRAMP authorized."
+    warn: "\u26A0\uFE0F Deprecation notice: Premium Cloud Plus will be discontinued in Q3\u2013Q4 2026 and replaced by FedCloud (a FedRAMP-authorized offering). Do not sell to new customers \u2014 reach out to @Doug Cooper or @Erin Ogren before proposing this environment."
   }
 };
 
-const NODES = {
-  start: {
-    id: "start",
-    q: "Does the customer operate under a government, federal, or defense compliance framework?",
-    hint: "Think: FedRAMP, FISMA, CJIS, ITAR, DFARS, DoD SRG, or a requirement for U.S.-citizen-only data access.",
-    answers: [
-      { label: "Yes — federal/defense/government-level requirements", next: "fedgov" },
-      { label: "No — or unsure", next: "regulated" }
-    ]
-  },
-  fedgov: {
-    id: "fedgov",
-    q: "Is the customer explicitly required to be in a FedRAMP-authorized environment?",
-    hint: "FedRAMP authorization means Jamf Pro itself is authorized — not just hosted in GovCloud infrastructure.",
-    answers: [
-      { label: "Yes — must be FedRAMP authorized", next: "fedcloud_note" },
-      { label: "Needs GovCloud infrastructure or U.S.-citizen access controls", next: "premiumplus_warn" }
-    ]
-  },
-  fedcloud_note: {
-    id: "fedcloud_note",
-    q: "FedCloud is coming in Q3–Q4 2026",
-    hint: "Jamf's official FedRAMP-authorized offering (FedCloud) is not yet available. If a customer requires true FedRAMP authorization today, that product does not exist yet.",
-    answers: [
-      { label: "Customer can wait for FedCloud (Q3–Q4 2026)", outcome: "premiumplus" },
-      { label: "Customer cannot wait — explore alternatives", next: "fedcloud_alt" }
-    ]
-  },
-  fedcloud_alt: {
-    id: "fedcloud_alt",
-    q: "What is the primary driver behind the FedRAMP requirement?",
-    hint: "Understanding the 'why' often reveals whether an alternative path exists.",
-    answers: [
-      { label: "Vendor risk assessment / InfoSec checklist", outcome: "premiumplus" },
-      { label: "Strict contractual or regulatory mandate (no flexibility)", outcome: "premiumplus" }
-    ]
-  },
-  premiumplus_warn: {
-    id: "premiumplus_warn",
-    q: "Does the customer need U.S.-citizen-only access or GovCloud-hosted infrastructure?",
-    hint: "Examples: 'Our data can only be accessed by U.S. citizens,' 'We need AWS GovCloud,' or handling DoD/federal contract data.",
-    answers: [
-      { label: "Yes — GovCloud / U.S.-citizen access required", outcome: "premiumplus" },
-      { label: "Not strictly required — evaluate state/local compliance needs", next: "regulated" }
-    ]
-  },
-  regulated: {
-    id: "regulated",
-    q: "Does the customer have strict regulatory or compliance requirements beyond standard SaaS certifications?",
-    hint: "Think: StateRAMP, NIST 800-53, third-party vendor risk assessments, or audit trail requirements for their management platform itself.",
-    answers: [
-      { label: "Yes — state/local government, defense contractors, or strict regulated industry", next: "hcc_check" },
-      { label: "No — standard security needs or common benchmarks are sufficient", next: "control_needs" }
-    ]
-  },
-  hcc_check: {
-    id: "hcc_check",
-    q: "Does the customer need the hosting platform itself to meet compliance certification?",
-    hint: "This is the 'dual compliance' question — they need both device endpoint security AND infrastructure-level compliance for the management platform.",
-    answers: [
-      { label: "Yes — infrastructure-level compliance certification required", outcome: "highcompliance" },
-      { label: "Endpoint compliance controls are sufficient", next: "control_needs" }
-    ]
-  },
-  control_needs: {
-    id: "control_needs",
-    q: "Does the customer need operational control or security customization beyond standard SaaS?",
-    hint: "Think: scheduling their own upgrades, IP safelisting, custom SSL certificates, SIEM log streaming, or enhanced performance.",
-    answers: [
-      { label: "Yes — needs upgrade control, IP safelisting, SIEM integration, or custom SSL", next: "siem_check" },
-      { label: "No — standard Jamf-managed hosting is fine", outcome: "standard" }
-    ]
-  },
-  siem_check: {
-    id: "siem_check",
-    q: "What is the primary operational need driving this?",
-    hint: "All of the following are Premium Cloud features — this helps confirm fit and shape the right conversation.",
-    answers: [
-      { label: "SIEM / log streaming is a requirement", outcome: "premium" },
-      { label: "Upgrade scheduling or IP safelisting is the primary need", outcome: "premium" },
-      { label: "Enhanced performance or dedicated resources needed", outcome: "premium" }
-    ]
-  }
-};
-
-let history = [];
-
-function render(nodeId) {
-  if (nodeId === "restart") { history = []; render("start"); return; }
-  const node = NODES[nodeId];
-  if (!node) return;
-  if (node.outcome) { renderOutcome(node.outcome); return; }
-
-  const bc = document.getElementById("breadcrumb");
-  bc.innerHTML = history.map((h, i) =>
-    `<span class="bc-item" onclick="jumpTo(${i})">${h.label}</span><span class="bc-sep"> › </span>`
-  ).join("") + `<span style="color:var(--text-tertiary)">Question ${history.length + 1}</span>`;
-
-  let html = `<div class="q-card">
-    <div class="q-label">Question ${history.length + 1} of ~4</div>
-    <div class="q-text">${node.q}</div>`;
-  if (node.hint) html += `<div class="q-hint">${node.hint}</div>`;
-  html += `<div class="btn-row">`;
-  node.answers.forEach((a, i) => {
-    html += `<button class="q-btn" onclick="choose('${nodeId}', ${i})">${a.label}</button>`;
+function showInput(savedText) {
+  const content = document.getElementById("content");
+  content.innerHTML = `
+    <div class="input-card">
+      <div class="input-label">Describe the situation</div>
+      <div class="input-prompt">Tell me about your customer's environment and needs.</div>
+      <div class="input-hint">Include details like: industry, compliance requirements (FedRAMP, CJIS, StateRAMP, etc.), need for SIEM integration, upgrade control, GovCloud, device count, or any specific security concerns.</div>
+      <textarea id="situation" placeholder="e.g. State government agency with 5,000 Macs. They need StateRAMP alignment and their security team wants SIEM log streaming. They also need to control when upgrades happen.">${savedText || ''}</textarea>
+      <button class="submit-btn" id="submitBtn" onclick="submit()">Get Recommendation</button>
+    </div>
+  `;
+  document.getElementById("situation").focus();
+  document.getElementById("situation").addEventListener("keydown", function(e) {
+    if (e.metaKey && e.key === "Enter") submit();
   });
-  html += `</div></div>`;
-  if (history.length > 0) html += `<button class="restart-btn" onclick="render('restart')">↺ Start over</button>`;
-
-  document.getElementById("content").innerHTML = html;
 }
 
-function choose(nodeId, idx) {
-  const answer = NODES[nodeId].answers[idx];
-  history.push({ nodeId, label: answer.label.length > 36 ? answer.label.slice(0, 34) + "…" : answer.label });
-  if (answer.outcome) renderOutcome(answer.outcome);
-  else render(answer.next);
+async function submit() {
+  const text = document.getElementById("situation").value.trim();
+  if (!text) return;
+
+  const content = document.getElementById("content");
+  content.innerHTML = `<div class="loading"><span class="loading-dots">Analyzing your customer's situation</span></div>`;
+
+  try {
+    const res = await fetch("/api/recommend", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description: text })
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Request failed");
+    }
+
+    const data = await res.json();
+    renderResult(data, text);
+  } catch (err) {
+    content.innerHTML = `
+      <div class="error-msg">${err.message}</div>
+    `;
+    showInput(text);
+  }
 }
 
-function jumpTo(idx) {
-  history = history.slice(0, idx);
-  render(idx === 0 ? "start" : NODES[history[idx - 1]?.nodeId]?.id || "start");
-}
-
-function renderOutcome(key) {
-  const o = OUTCOMES[key];
-  const bc = document.getElementById("breadcrumb");
-  bc.innerHTML = history.map((h, i) =>
-    `<span class="bc-item" onclick="jumpTo(${i})">${h.label}</span><span class="bc-sep"> › </span>`
-  ).join("") + `<span style="color:var(--text-tertiary)">Recommendation</span>`;
-
-  const feats = o.features.map(f => `<li>${f}</li>`).join("");
-  const asks = o.asks.map(q => `<button class="ask-btn">${q}</button>`).join("");
+function renderResult(data, originalText) {
+  const o = OFFERINGS[data.offering] || OFFERINGS.standard;
+  const feats = (data.relevant_features || []).map(f => `<li>${f}</li>`).join("");
   const warn = o.warn ? `<div class="warn-note">${o.warn}</div>` : "";
+  const considerations = data.considerations
+    ? `<div class="considerations"><strong>Also consider</strong>${data.considerations}</div>`
+    : "";
 
   document.getElementById("content").innerHTML = `
+    <div class="input-context">"${originalText.length > 200 ? originalText.slice(0, 200) + '...' : originalText}"</div>
     <div class="result-card">
       <div class="result-badge" style="background:${o.badgeBg};color:${o.badgeColor};">${o.icon} Recommended offering</div>
       <div class="result-name">${o.name}</div>
-      <div class="result-desc">${o.desc}</div>
+      <div class="result-desc">${data.summary}</div>
       <ul class="result-features">${feats}</ul>
       <div class="result-price">Hosting cost: <strong>${o.price}</strong></div>
-      <div>${asks}</div>
+      ${considerations}
       ${warn}
     </div>
-    <button class="restart-btn" onclick="render('restart')">↺ Start over</button>
+    <button class="restart-btn" onclick="showInput('')">\u21BA Try another scenario</button>
   `;
 }
 
-render("start");
+showInput('');
 </script>
 </body>
 </html>

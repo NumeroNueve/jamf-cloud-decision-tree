@@ -5,5 +5,8 @@
   "scripts": {
     "dev": "npx serve public",
     "build": "echo 'Static site — no build step required'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.86.1"
   }
 }
