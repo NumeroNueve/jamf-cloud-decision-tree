@@ -436,9 +436,9 @@ async function submit() {
     renderResult(data, text);
   } catch (err) {
     content.innerHTML = `
-      <div class="error-msg">${err.message}</div>
+      <div class="error-msg">Error: ${err.message}</div>
+      <button class="restart-btn" onclick="showInput('${text.replace(/'/g, "\\'")}')">Try again</button>
     `;
-    showInput(text);
   }
 }
 

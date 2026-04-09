@@ -89,6 +89,6 @@ export default async function handler(req, res) {
     return res.status(200).json(result);
   } catch (err) {
     console.error("API error:", err);
-    return res.status(500).json({ error: "Something went wrong. Please try again." });
+    return res.status(500).json({ error: err.message || "Something went wrong. Please try again." });
   }
 }
